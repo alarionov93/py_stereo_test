@@ -30,7 +30,6 @@ res = img_red_c * mask_g
 
 edges = cv.Canny(res,230,255)
 
-plt.subplot(122),plt.imshow(edges,cmap = 'gray')
-plt.title('Edge Image')
+plt.imshow(edges,cmap = 'gray')
 plt.show()
 
