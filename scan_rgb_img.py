@@ -25,10 +25,13 @@ img_blue_c = img[:,:,0]
 
 # the working way
 
-mask_g = (img_green_c < 10) & (img_blue_c < 10) & (img_red_c > 254)
+mask_g = (img_green_c < 70) & (img_blue_c < 70) & (img_red_c > 114)
 res = img_red_c * mask_g
 
-edges = cv.Canny(res,230,255)
+plt.imshow(res,cmap = 'gray')
+plt.show()
+
+edges = cv.Canny(res,200,255)
 
 plt.imshow(edges,cmap = 'gray')
 plt.show()
