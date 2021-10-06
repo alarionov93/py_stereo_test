@@ -2,6 +2,7 @@ import sys
 import numpy as np
 import cv2 as cv
 from matplotlib import pyplot as plt
+from interpol import interpol
 
 img = cv.imread(sys.argv[1],1)
 
@@ -28,11 +29,22 @@ img_blue_c = img[:,:,0]
 mask_g = (img_green_c < 70) & (img_blue_c < 70) & (img_red_c > 114)
 res = img_red_c * mask_g
 
-plt.imshow(res,cmap = 'gray')
-plt.show()
+# plt.imshow(res,cmap = 'gray')
+# plt.show()
 
 edges = cv.Canny(res,200,255)
 
-plt.imshow(edges,cmap = 'gray')
+res = interpol(edges)
+print(res)
+
+# plt.imshow(edges,cmap = 'gray')
+f = plt.figure()
+plt_idx = 1
+for r in res:
+	a = (1,1)
+	plt_vals = a[0]*100 + a[1]*10 + plt_idx
+	y1 = f.add_subplot(plt_vals)
+	y1.plot(r)
+
 plt.show()
 
