@@ -35,16 +35,18 @@ res = img_red_c * mask_g
 edges = cv.Canny(res,200,255)
 
 res = interpol(edges)
-print(res)
+# print(res)
 
 # plt.imshow(edges,cmap = 'gray')
 f = plt.figure()
 plt_idx = 1
-for r in res:
-	a = (1,1)
-	plt_vals = a[0]*100 + a[1]*10 + plt_idx
-	y1 = f.add_subplot(plt_vals)
-	y1.plot(r)
+for x,z,y in res:
+	# a = (1,1)
+	# plt_vals = a[0]*100 + a[1]*10 + plt_idx
+	# y1 = f.add_subplot(plt_vals)
+	# y1.plot(r)
+	plt.scatter(x,y)
+	plt.plot(x,z)
 
 plt.show()
 
