@@ -2,7 +2,7 @@ import sys
 import numpy as np
 import cv2 as cv
 from matplotlib import pyplot as plt
-from interpol import interpol
+from interpol import interpol, slice_np_arr
 
 img = cv.imread(sys.argv[1],1)
 
@@ -26,7 +26,7 @@ img_blue_c = img[:,:,0]
 
 # the working way
 
-mask_g = (img_green_c < 70) & (img_blue_c < 70) & (img_red_c > 114)
+mask_g = (img_green_c < 70) & (img_blue_c < 70) & (img_red_c > 120)
 res = img_red_c * mask_g
 
 # plt.imshow(res,cmap = 'gray')
@@ -34,19 +34,31 @@ res = img_red_c * mask_g
 
 edges = cv.Canny(res,200,255)
 
-res = interpol(edges)
+# res = interpol(edges)
 # print(res)
+shift = 25
+res = slice_np_arr(edges, shift)
+# print(res)
+for r, coords in res:
+	X,Y = np.where(r>250)
+	X_ = X+coords[0]*shift
+	Y_ = Y+coords[1]*shift
+	a,b,c = np.polyfit(X_,Y_,2)
+	# print(coords[0],coords[1])
+	plt.plot(X_, X_**2 * a + X_ * b + c)
+	plt.plot(X_, Y_)
+plt.show()
 
 # plt.imshow(edges,cmap = 'gray')
-f = plt.figure()
-plt_idx = 1
-for x,z,y in res:
-	# a = (1,1)
-	# plt_vals = a[0]*100 + a[1]*10 + plt_idx
-	# y1 = f.add_subplot(plt_vals)
-	# y1.plot(r)
-	plt.scatter(x,y)
-	plt.plot(x,z)
+# f = plt.figure()
+# plt_idx = 1
+# for x,z,y in res:
+# 	# a = (1,1)
+# 	# plt_vals = a[0]*100 + a[1]*10 + plt_idx
+# 	# y1 = f.add_subplot(plt_vals)
+# 	# y1.plot(r)
+# 	plt.scatter(x,y)
+# 	plt.plot(x,z)
 
-plt.show()
+# plt.show()
 
