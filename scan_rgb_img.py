@@ -12,7 +12,7 @@ from sort_pnt_by_circle import Sort_pnt_by_circle
 from PIL import Image, ImageDraw
 from PIL import ImagePath
 
-refvec = [0, 1]
+refvec = [1, 0]
 
 crv = NURBS.Curve()
 crv.degree = 2
@@ -39,7 +39,7 @@ img_blue_c = img[:,:,0]
 
 # the working way
 
-mask_g = (img_green_c < 200) & (img_blue_c  < 200) & (img_red_c > 120)
+mask_g = (img_green_c < 70) & (img_blue_c  < 70) & (img_red_c > 71)
 res = img_red_c * mask_g
 #plt.imshow(res,cmap = 'gray')
 #plt.show()
@@ -48,7 +48,7 @@ edges = cv.Canny(res,200,255)
 #print(edges)
 # res = interpol(edges)
 # print(res)
-shift = 15
+shift = 25
 res = slice_np_arr(edges, shift)
 curve_cord = []
 
@@ -63,8 +63,8 @@ for r, coords in res:
 	plt.plot(X_[0], Y_[0], 'ro:')
 	#plt.plot(X_[-1],Y_[-1], 'ro:')
 	lst = []
-	lst.append(X_[0])
 	lst.append(Y_[0])
+	lst.append(X_[0])
 	curve_cord.append(lst)
 	del lst
 	#print(X_[-1])
@@ -90,16 +90,18 @@ foto_link = sys.argv[1],1
 nurb_pil = tuple(map(tuple, curve))
 
 img = Image.open('/home/honepa/Документы/цр/трушников/img/lopatka.JPG')
+#img = img.rotate(90)
 img1 = ImageDraw.Draw(img)
-img1.polygon(nurb_pil, fill ="#eeeeff", outline ="blue")
+img1.polygon(nurb_pil,  outline ="white")
 
 img.show()
 img.save('nurbs_lopatka.jpg', quality=95)
+
 #get centr of figure
 centr_x = sum(curve[:,0]) / len(curve)
 centr_y = sum(curve[:,1]) / len(curve)
 plt.plot(centr_x, centr_y, 'ro:')
-#plt.show()
+plt.show()
 # plt.imshow(edges,cmap = 'gray')
 # f = plt.figure()
 # plt_idx = 1
