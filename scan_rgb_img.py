@@ -8,6 +8,10 @@ from matplotlib import pyplot as plt
 import math
 import numpy as np
 from sort_pnt_by_circle import Sort_pnt_by_circle
+
+from PIL import Image, ImageDraw
+from PIL import ImagePath
+
 refvec = [0, 1]
 
 crv = NURBS.Curve()
@@ -55,7 +59,7 @@ for r, coords in res:
 	a,b,c = np.polyfit(X_,Y_,2)
 	#print(coords[0],coords[1])
 	plt.plot(X_, X_**2 * a + X_ * b + c)
-	#plt.plot(X_, Y_)
+	plt.plot(X_, Y_)
 	plt.plot(X_[0], Y_[0], 'ro:')
 	#plt.plot(X_[-1],Y_[-1], 'ro:')
 	lst = []
@@ -80,12 +84,22 @@ curve = np.array(crv.evalpts)
 
 plt.plot(curve[:,0], curve[:,1])
 
+foto_link = sys.argv[1],1
+#print(type(str(foto_link)))
 
+nurb_pil = tuple(map(tuple, curve))
+
+img = Image.open('/home/honepa/Документы/цр/трушников/img/lopatka.JPG')
+img1 = ImageDraw.Draw(img)
+img1.polygon(nurb_pil, fill ="#eeeeff", outline ="blue")
+
+img.show()
+img.save('nurbs_lopatka.jpg', quality=95)
 #get centr of figure
 centr_x = sum(curve[:,0]) / len(curve)
 centr_y = sum(curve[:,1]) / len(curve)
 plt.plot(centr_x, centr_y, 'ro:')
-plt.show()
+#plt.show()
 # plt.imshow(edges,cmap = 'gray')
 # f = plt.figure()
 # plt_idx = 1
