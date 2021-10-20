@@ -43,7 +43,7 @@ img_blue_c = img[:,:,0]
 
 # the working way
 
-mask_g = (img_green_c < 70) & (img_blue_c  < 70) & (img_red_c > 70)
+mask_g = (img_green_c < 90) & (img_blue_c  < 90) & (img_red_c > 110)
 res = img_red_c * mask_g
 #plt.imshow(res,cmap = 'gray')
 #plt.show()
@@ -67,8 +67,8 @@ for r, coords in res:
 	#plt.plot(X_[0], X_[0]**2 * a + X_[0] * b + c, 'ro:')
 	#plt.plot(X_[-1],Y_[-1], 'ro:')
 	lst = []
-	lst.append(X_[0])
 	lst.append(int(X_[0]**2 * a + X_[0] * b + c))
+	lst.append(X_[0])
 
 	curve_cord.append(lst)
 	del lst
@@ -88,7 +88,7 @@ dif1 = [a/b for a, b in kv1]
 dif2 = [a/b for a, b in kv2]
 dif3 = [a/b for a, b in kv3]
 dif4 = [a/b for a, b in kv4]
-print(dif4)
+# print(dif4)
 kv1 = add_two_list(kv1, dif1)
 kv2 = add_two_list(kv2, dif2)
 kv3 = add_two_list(kv3, dif3)
@@ -116,8 +116,8 @@ for i in range(len(kv4)):
 #sorted_cord = [x for x in curve_cord if x not in sorted_cord]
 print(sorted_cord)
 sorted_cord.append(sorted_cord[0])
-for i in range(len(sorted_cord)):
-	plt.plot(sorted_cord[i][0], sorted_cord[i][1], 'ro:')
+for i in range(len(curve_cord)):
+	plt.plot(curve_cord[i][0], curve_cord[i][1], 'ro:')
 
 crv.ctrlpts = sorted_cord
 crv.knotvector = knotvector.generate(crv.degree, crv.ctrlpts_size)
@@ -127,26 +127,34 @@ curve = np.array(crv.evalpts)
 
 plt.plot(curve[:,0], curve[:,1])
 
-foto_link = sys.argv[1],1
+# foto_link = sys.argv[1],1
 #print(type(str(foto_link)))
-
+# print(curve)
 nurb_pil = tuple(map(tuple, curve))
-#print(nurb_pil)
-img = Image.open('/home/honepa/Документы/цр/трушников/img/lopatka.JPG')
-#img = img.rotate(90)
-img1 = ImageDraw.Draw(img)
-img1.polygon(nurb_pil,  outline ="white")
+# print(nurb_pil)
 
-#img.show()
-#img.save('nurbs_lopatka.jpg', quality=95)
+print(img.shape)
+print(edges.shape)
+edges_rgb = np.expand_dims(edges, axis=2)
+print(edges_rgb.shape)
+img_res = cv.addWeighted(img, 0.5, edges, 0.5, 0)
+
+cv.imshow('aaa', img_res)
+# img = Image.open(sys.argv[1])
+# #img = img.rotate(90)
+# img1 = ImageDraw.Draw(img)
+# img1.polygon(nurb_pil,  outline ="white")
+
+# img.show()
+#img.save('%s_curve.jpg' % sys.argv[1].split('.')[0], quality=95)
 
 #get centr of figure
 #centr_x = sum(curve[:,0]) / len(curve)
 #centr_y = sum(curve[:,1]) / len(curve)
-plt.plot(centr_x, centr_y, 'ro:')
-print(centr_x)
-print(centr_y)
-plt.show()
+# plt.plot(centr_x, centr_y, 'ro:')
+# print(centr_x)
+# print(centr_y)
+# plt.show()
 # plt.imshow(edges,cmap = 'gray')
 # f = plt.figure()
 # plt_idx = 1
