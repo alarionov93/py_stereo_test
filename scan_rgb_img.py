@@ -12,11 +12,15 @@ from sort_pnt_by_circle import Sort_pnt_by_circle
 from PIL import Image, ImageDraw
 from PIL import ImagePath
 
-refvec = [1, 0]
+refvec = [0, 1]
 
 crv = NURBS.Curve()
 crv.degree = 2
 
+def add_two_list(list1, list2):
+	for i in range(len(list1)):
+		list1[i].append(list2[i])
+	return list1
 
 img = cv.imread(sys.argv[1],1)
 
@@ -39,7 +43,7 @@ img_blue_c = img[:,:,0]
 
 # the working way
 
-mask_g = (img_green_c < 70) & (img_blue_c  < 70) & (img_red_c > 71)
+mask_g = (img_green_c < 70) & (img_blue_c  < 70) & (img_red_c > 70)
 res = img_red_c * mask_g
 #plt.imshow(res,cmap = 'gray')
 #plt.show()
@@ -59,24 +63,63 @@ for r, coords in res:
 	a,b,c = np.polyfit(X_,Y_,2)
 	#print(coords[0],coords[1])
 	plt.plot(X_, X_**2 * a + X_ * b + c)
-	plt.plot(X_, Y_)
-	plt.plot(X_[0], Y_[0], 'ro:')
+	#plt.plot(X_, Y_)
+	#plt.plot(X_[0], X_[0]**2 * a + X_[0] * b + c, 'ro:')
 	#plt.plot(X_[-1],Y_[-1], 'ro:')
 	lst = []
-	lst.append(Y_[0])
 	lst.append(X_[0])
+	lst.append(int(X_[0]**2 * a + X_[0] * b + c))
+
 	curve_cord.append(lst)
 	del lst
+
 	#print(X_[-1])
 	#print(Y_[-1])
+centr_x = sum([x for x, y in curve_cord]) / len(curve_cord)
+centr_y = sum([y for x, y in curve_cord]) / len(curve_cord)
+diff = [[x1 - centr_x, y1-centr_y] for x1, y1 in curve_cord]
 
-origin = curve_cord[0]
-sort_figure = Sort_pnt_by_circle(origin = origin, refvec = refvec)
+kv1 = [[x,y] for x, y in diff if x> 0 and y>=0]
+kv2 = [[x,y] for x, y in diff if x>= 0 and y<0]
+kv3 = [[x,y] for x, y in diff if x<= 0 and y<0]
+kv4 = [[x,y] for x, y in diff if x< 0 and y>=0]
 
-curve_cord = sorted(curve_cord, key=sort_figure.sort_pnt_by_circle)
-curve_cord.append(curve_cord[0])
+dif1 = [a/b for a, b in kv1]
+dif2 = [a/b for a, b in kv2]
+dif3 = [a/b for a, b in kv3]
+dif4 = [a/b for a, b in kv4]
+print(dif4)
+kv1 = add_two_list(kv1, dif1)
+kv2 = add_two_list(kv2, dif2)
+kv3 = add_two_list(kv3, dif3)
+kv4 = add_two_list(kv4, dif4)
 
-crv.ctrlpts = curve_cord
+kv1 = sorted(kv1, key=lambda row : row[2])
+kv2 = sorted(kv2, key=lambda row : row[2])
+kv3 = sorted(kv3, key=lambda row : row[2])
+kv4 = sorted(kv4, key=lambda row : row[2])
+print(kv4	)
+sorted_cord =[]
+for i in range(len(kv1)):
+	lst = [[a + centr_x, b + centr_y] for a, b, c in kv1]
+	sorted_cord.append(lst[i])
+for i in range(len(kv2)):
+	lst = [[a + centr_x, b + centr_y] for a, b, c in kv2]
+	sorted_cord.append(lst[i])
+for i in range(len(kv3)):
+	lst = [[a + centr_x, b + centr_y] for a, b, c in kv3]
+	sorted_cord.append(lst[i])
+for i in range(len(kv4)):
+	lst = [[a + centr_x, b + centr_y] for a, b, c in kv4]
+	sorted_cord.append(lst[i])
+#curve_cord = [[150, 130], [175, 131], [200, 127], [200, 94], [176, 99], [175, 98], [150, 98], [139, 98], [125, 100], [100, 99], [75, 114], [56, 112],  [85, 124], [100, 127], [125, 129]]
+#sorted_cord = [x for x in curve_cord if x not in sorted_cord]
+print(sorted_cord)
+sorted_cord.append(sorted_cord[0])
+for i in range(len(sorted_cord)):
+	plt.plot(sorted_cord[i][0], sorted_cord[i][1], 'ro:')
+
+crv.ctrlpts = sorted_cord
 crv.knotvector = knotvector.generate(crv.degree, crv.ctrlpts_size)
 
 
@@ -88,19 +131,21 @@ foto_link = sys.argv[1],1
 #print(type(str(foto_link)))
 
 nurb_pil = tuple(map(tuple, curve))
-
+#print(nurb_pil)
 img = Image.open('/home/honepa/Документы/цр/трушников/img/lopatka.JPG')
 #img = img.rotate(90)
 img1 = ImageDraw.Draw(img)
 img1.polygon(nurb_pil,  outline ="white")
 
-img.show()
-img.save('nurbs_lopatka.jpg', quality=95)
+#img.show()
+#img.save('nurbs_lopatka.jpg', quality=95)
 
 #get centr of figure
-centr_x = sum(curve[:,0]) / len(curve)
-centr_y = sum(curve[:,1]) / len(curve)
+#centr_x = sum(curve[:,0]) / len(curve)
+#centr_y = sum(curve[:,1]) / len(curve)
 plt.plot(centr_x, centr_y, 'ro:')
+print(centr_x)
+print(centr_y)
 plt.show()
 # plt.imshow(edges,cmap = 'gray')
 # f = plt.figure()
