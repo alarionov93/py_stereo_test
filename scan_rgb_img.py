@@ -28,14 +28,24 @@ def img_to_fun(img, hbi=84, hbj=94):
 
 	return fun
 
-def foo(*args):
-	a,b,c,X = args[0]
-	return np.array(list(zip(X, X**2*a + X*b + c)))
+def find_middle_pts(fun):
+	def foo(*args):
+		a,b,c,X = args[0]
+		return np.array(list(zip(X, X**2*a + X*b + c)))
+	res = []
+	for i in range(len(fun)-1):
+		A,B = fun[i:i+2]
+		res += [(foo(A)[-1] + foo(B)[0]) // 2]
+
+	return res
+
+def draw_pts(img,pts):
+	for p in pts:
+		cv.circle(img, (int(p[1]), int(p[0])), 4,(255,255,255), -1)
+	cv.imwrite('%s_res.jpg' % (sys.argv[1].split(".")[0]), img)
 
 if __name__ == '__main__':
-	res = img_to_fun(cv.imread(sys.argv[1],1))
-	for i in range(len(res)-1):
-		A,B = res[i:i+2]
-		print((foo(A)[-1] + foo(B)[0]) / 2)
-
+	img = cv.imread(sys.argv[1],1)
+	res = img_to_fun(img)
+	draw_pts(img, find_middle_pts(res))
 
