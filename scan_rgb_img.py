@@ -5,19 +5,37 @@ import cv2 as cv
 from matplotlib import pyplot as plt
 from interpol import slice_np_arr
 
+
+def sort_edges(a):
+	shift = 25 # TODO: shift need to be passed to function!!
+	for res, coords in a:
+		quater_center_x = np.mean()
+		X,Y = np.where(res>250)
+		X_ = X+coords[0]*shift
+		Y_ = Y+coords[1]*shift
+		pass
+
+	q = a[0][0]
+	X,Y = np.where(q>250)
+	print(X,Y)
+	return None
+
+
 def img_to_fun(img, hbi=84, hbj=94):
 	img_red_c = img[:,:,2]
 	img_green_c = img[:,:,1]
 	img_blue_c = img[:,:,0]
 	mask_g = (img_green_c < int(hbi)) & (img_blue_c  < int(hbi)) & (img_red_c > int(hbj))
 	edges = cv.Canny(img_red_c * mask_g,200,255)
-	
+
 	fun = []
 	shift = 25
 	quaters = slice_np_arr(edges, shift)
 	curve_cord = []
 	last_x = -1
 	last_y = -1
+
+	quaters = sort_edges(quaters)
 
 	for r, coords in quaters:
 		X,Y = np.where(r>250)
