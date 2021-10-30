@@ -24,13 +24,13 @@ def get_polar_coords(coords):
 
 	ro = int(math.sqrt(x**2 + y**2))
 
-	return (ro, ph)
+	return (ro, ph, x, y)
 
 def sort_edges(edges):
 	X,Y = np.where(edges>250)
 	avg_x, avg_y = (np.mean(X), np.mean(Y))
 	res = [get_polar_coords((x-avg_x, y-avg_y)) for x, y in zip(X,Y)]
-	# print(res)
+	# print(avg_x, avg_y)
 
 	return sorted(res, key=lambda e: e[1])
 
@@ -45,8 +45,9 @@ def img_to_fun(img, hbi=84, hbj=94):
 	# quaters = slice_np_arr(edges, shift)
 	curve_cord = []
 
+	# s_edges is in polar coordinates and in casterian (ro, ph, x, y)!
 	s_edges = sort_edges(edges)
-	print(s_edges)
+	# print(s_edges)
 	# # TODO: remove this фуцкинг шыт from отсюда!
 	# X,Y = np.where(edges>250)
 	# avg_x, avg_y = (np.mean(X), np.mean(Y))
@@ -86,8 +87,22 @@ if __name__ == '__main__':
 	img = cv.imread(sys.argv[1],1)
 	res = img_to_fun(img)
 	# draw_pts(img, res)
-	X = [r[0] for r in res]
-	Y = [r[1] for r in res]
-	plt.plot(Y,X)
+	X = [r[1] for r in res]
+	res += [res[-1]]
+	RO_ = [res[i][0]-res[i-1][0] for i in range(1, len(res))]
+	dRO_min = np.mean(RO_) - np.ceil(np.std(RO_))
+	dRO_max = np.mean(RO_) + np.ceil(np.std(RO_))
+	try:
+		X_res = [res[i] for i in range(len(res)-1) if dRO_min<RO_[i]<dRO_max]
+		plt.plot([X_res[i][2] for i in range(len(X_res))],[X_res[i][3] for i in range(len(X_res))])
+	except IndexError:
+		print(u"\U0001F914 Эээм...")
+	except TypeError:
+		print(u"\U0001F610 Ой!")
+	except Exception as e:
+		print(u"\U0001F643 Упс! Почитайте про ошибку ниже..")
+		print(e)
+	# plt.plot(X,Y)
+	# plt.show()
+	# print(X_res)
 	plt.show()
-
