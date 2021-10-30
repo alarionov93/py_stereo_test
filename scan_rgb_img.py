@@ -4,11 +4,25 @@ import numpy as np
 import cv2 as cv
 from matplotlib import pyplot as plt
 from interpol import slice_np_arr
+from geomdl import NURBS, knotvector
 
+
+def get_nurbs_crv(pts):
+	refvec = [1, 0]
+
+	crv = NURBS.Curve()
+	crv.degree = 290
+	crv.ctrlpts = pts
+	crv.knotvector = knotvector.generate(crv.degree, crv.ctrlpts_size)
+	curve = np.array(crv.evalpts)
+
+	return curve
 
 def get_polar_coords(coords):
-	x = coords[0]
-	y = coords[1]
+	pure_x,pure_y = coords[:2]
+	avg_x,avg_y = coords[2:]
+	x = pure_x - avg_x
+	y = pure_y - avg_y
 	ph = 0
 
 	if x>0 and y>0:
@@ -24,17 +38,17 @@ def get_polar_coords(coords):
 
 	ro = int(math.sqrt(x**2 + y**2))
 
-	return (ro, ph, x, y)
+	return (ro, ph, int(pure_x), int(pure_y))
 
 def sort_edges(edges):
 	X,Y = np.where(edges>250)
 	avg_x, avg_y = (np.mean(X), np.mean(Y))
-	res = [get_polar_coords((x-avg_x, y-avg_y)) for x, y in zip(X,Y)]
+	res = [get_polar_coords((x, y, avg_x, avg_y)) for x, y in zip(X,Y)]
 	# print(avg_x, avg_y)
 
 	return sorted(res, key=lambda e: e[1])
 
-def img_to_fun(img, hbi=84, hbj=94):
+def img_to_edges_sorted(img, hbi=84, hbj=94):
 	img_red_c = img[:,:,2]
 	img_green_c = img[:,:,1]
 	img_blue_c = img[:,:,0]
@@ -85,16 +99,20 @@ def draw_pts(img,pts):
 
 if __name__ == '__main__':
 	img = cv.imread(sys.argv[1],1)
-	res = img_to_fun(img)
+	res = img_to_edges_sorted(img)
 	# draw_pts(img, res)
-	X = [r[1] for r in res]
+	# X = [r[1] for r in res]
 	res += [res[-1]]
 	RO_ = [res[i][0]-res[i-1][0] for i in range(1, len(res))]
 	dRO_min = np.mean(RO_) - np.ceil(np.std(RO_))
 	dRO_max = np.mean(RO_) + np.ceil(np.std(RO_))
 	try:
 		X_res = [res[i] for i in range(len(res)-1) if dRO_min<RO_[i]<dRO_max]
-		plt.plot([X_res[i][2] for i in range(len(X_res))],[X_res[i][3] for i in range(len(X_res))])
+		X_res += [res[0]]
+		# plt.plot([X_res[i][2] for i in range(len(X_res))],[X_res[i][3] for i in range(len(X_res))])
+		curve = get_nurbs_crv([[X_res[i][2],X_res[i][3]] for i in range(len(X_res))])
+		plt.imshow(img)
+		plt.plot(curve[:,1], curve[:,0])
 	except IndexError:
 		print(u"\U0001F914 Эээм...")
 	except TypeError:
