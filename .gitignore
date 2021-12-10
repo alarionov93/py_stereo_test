@@ -1,0 +1,8 @@
+__pycache__/
+test_data/
+img/
+res/
+*.jpg
+*.obj
+*.gz
+

@@ -48,12 +48,19 @@ def sort_edges(edges):
 
 	return sorted(res, key=lambda e: e[1])
 
+def show_hist(arr: 'np.array') -> 'np.array':
+	return np.histogram(arr)
+
 def img_to_edges_sorted(img, hbi=84, hbj=94):
 	img_red_c = img[:,:,2]
 	img_green_c = img[:,:,1]
 	img_blue_c = img[:,:,0]
+	print(show_hist(img_red_c))
+	print(show_hist(img_green_c))
+	print(show_hist(img_blue_c))
 	mask_g = (img_green_c < int(hbi)) & (img_blue_c  < int(hbi)) & (img_red_c > int(hbj))
-	edges = cv.Canny(img_red_c * mask_g,200,255)
+	# plt.imshow(img_red_c)
+	edges = cv.Canny(img_red_c*mask_g,254,255)
 	# plt.imshow(edges)
 	fun = []
 	# quaters = slice_np_arr(edges, shift)
@@ -98,8 +105,22 @@ def draw_pts(img,pts):
 	cv.imwrite('%s_res.jpg' % (sys.argv[1].split(".")[0]), img)
 
 if __name__ == '__main__':
-	img = cv.imread(sys.argv[1],1)
-	res = img_to_edges_sorted(img)
+	imgs = []
+	x = 1
+	while True:
+		try:
+			imgs += [cv.imread(sys.argv[x],1)]
+			x += 1
+		except IndexError:
+			break
+
+	np_arr = np.zeros((len(imgs), imgs[0].shape[0], imgs[0].shape[1], 3))
+	idx = 0
+	for i in imgs:
+		np_arr[idx] = i
+		idx += 1
+
+	res = img_to_edges_sorted(np.median(np_arr, 0).astype(np.uint8))
 	# draw_pts(img, res)
 	# X = [r[1] for r in res]
 	res += [res[-1]]
@@ -111,7 +132,7 @@ if __name__ == '__main__':
 		X_res += [res[0]]
 		# plt.plot([X_res[i][2] for i in range(len(X_res))],[X_res[i][3] for i in range(len(X_res))])
 		curve = get_nurbs_crv([[X_res[i][2],X_res[i][3]] for i in range(len(X_res))])
-		plt.imshow(img)
+		plt.imshow(imgs[0])
 		plt.plot(curve[:,1], curve[:,0])
 	except IndexError:
 		print(u"\U0001F914 Эээм...")
