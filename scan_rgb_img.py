@@ -142,14 +142,26 @@ if __name__ == '__main__':
 		
 		# TODO: make a function  of STL file creation here !!
 		X_s, Y_s = curve[:,1], curve[:,0]
-		open('test.obj', 'w').write('>Name\n')
+		open('test.obj', 'w').write('o Name\n')
 		f = open('test.obj', 'a')
 		f.write('\n'.join(['v %s %s %s' % (t[0], t[1], t[2]) for t in zip(X_s, Y_s, len(X_s)*[0])])+'\n')
 		f.write('\n'.join(['v %s %s %s' % (t[0], t[1], t[2]) for t in zip(X_s, Y_s, len(X_s)*[1])])+'\n')
 		f.write('f ')
-		f.write(' '.join(['%s//1' % x for x in range(len(X_s))])+'\n')
+		v0 = ['%s//1' % x for x in range(len(X_s))]
+		f.write(' '.join(v0)+'\n')
 		f.write('f ')
-		f.write(' '.join(['%s//2' % str(y+len(Y_s)) for y in range(len(Y_s))])+'\n')
+		v1 = ['%s//2' % str(y+len(Y_s)) for y in range(len(Y_s))]
+		f.write(' '.join(v1)+'\n')
+		f.write('f ')
+		cnt = 0
+		for i in range(len(v0)):
+			try:
+				f.write(f"{v0[i].split('/')[0]}//{cnt} {v0[i+1].split('/')[0]}//{cnt} {v1[i].split('/')[0]}//{cnt} {v1[i+1].split('/')[0]}//{cnt} \n")
+				cnt += 1
+				f.write('f ')
+			except IndexError:
+				print('Empty')
+
 		# plt.imshow(imgs[0])
 		# plt.plot(curve[:,1], curve[:,0])
 	except IndexError:
