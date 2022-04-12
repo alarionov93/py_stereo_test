@@ -11,7 +11,7 @@ def get_nurbs_crv(pts):
 	refvec = [1, 0]
 
 	crv = NURBS.Curve()
-	crv.degree = 290
+	crv.degree = 1
 	crv.ctrlpts = pts
 	crv.knotvector = knotvector.generate(crv.degree, crv.ctrlpts_size)
 	curve = np.array(crv.evalpts)
@@ -51,6 +51,12 @@ def sort_edges(edges):
 def show_hist(arr: 'np.array') -> 'np.array':
 	return np.histogram(arr)
 
+def create_stl(X, Y):
+	open('test_%s_%s.obj' % (f1,f2), 'w').write('\n'.join(['v %s %s %s' % x for x in vertexes])+'\n')
+	open('test_%s_%s.obj' % (f1,f2), 'a').write('\n'.join(['f %s %s %s' % x for x in faces]))
+	
+	return None
+
 def img_to_edges_sorted(img, hbi=84, hbj=94):
 	img_red_c = img[:,:,2]
 	img_green_c = img[:,:,1]
@@ -59,8 +65,9 @@ def img_to_edges_sorted(img, hbi=84, hbj=94):
 	print(show_hist(img_green_c))
 	print(show_hist(img_blue_c))
 	mask_g = (img_green_c < int(hbi)) & (img_blue_c  < int(hbi)) & (img_red_c > int(hbj))
+	# ? ЗЫС ФУЦКИНГ ШШЫИТ DOESN'T WORK WITH MASK! ^
 	# plt.imshow(img_red_c)
-	edges = cv.Canny(img_red_c*mask_g,254,255)
+	edges = cv.Canny(img_red_c,200,255)
 	# plt.imshow(edges)
 	fun = []
 	# quaters = slice_np_arr(edges, shift)
@@ -121,7 +128,7 @@ if __name__ == '__main__':
 		idx += 1
 
 	res = img_to_edges_sorted(np.median(np_arr, 0).astype(np.uint8))
-	# draw_pts(img, res)
+	# draw_pts(img, res) 1004 1451 1818 1048
 	# X = [r[1] for r in res]
 	res += [res[-1]]
 	RO_ = [res[i][0]-res[i-1][0] for i in range(1, len(res))]
@@ -132,12 +139,24 @@ if __name__ == '__main__':
 		X_res += [res[0]]
 		# plt.plot([X_res[i][2] for i in range(len(X_res))],[X_res[i][3] for i in range(len(X_res))])
 		curve = get_nurbs_crv([[X_res[i][2],X_res[i][3]] for i in range(len(X_res))])
-		plt.imshow(imgs[0])
-		plt.plot(curve[:,1], curve[:,0])
+		
+		# TODO: make a function  of STL file creation here !!
+		X_s, Y_s = curve[:,1], curve[:,0]
+		open('test.obj', 'w').write('>Name\n')
+		f = open('test.obj', 'a')
+		f.write('\n'.join(['v %s %s %s' % (t[0], t[1], t[2]) for t in zip(X_s, Y_s, len(X_s)*[0])])+'\n')
+		f.write('\n'.join(['v %s %s %s' % (t[0], t[1], t[2]) for t in zip(X_s, Y_s, len(X_s)*[1])])+'\n')
+		f.write('f ')
+		f.write(' '.join(['%s//1' % x for x in range(len(X_s))])+'\n')
+		f.write('f ')
+		f.write(' '.join(['%s//2' % str(y+len(Y_s)) for y in range(len(Y_s))])+'\n')
+		# plt.imshow(imgs[0])
+		# plt.plot(curve[:,1], curve[:,0])
 	except IndexError:
 		print(u"\U0001F914 Эээм...")
-	except TypeError:
+	except TypeError as e:
 		print(u"\U0001F610 Ой!")
+		print(e)
 	except Exception as e:
 		print(u"\U0001F643 Упс! Почитайте про ошибку ниже..")
 		print(e)
