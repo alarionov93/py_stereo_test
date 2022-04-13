@@ -152,13 +152,13 @@ if __name__ == '__main__':
 		f.write('f ')
 		v1 = ['%s//2' % str(y+len(Y_s)) for y in range(len(Y_s))]
 		f.write(' '.join(v1)+'\n')
-		f.write('f ')
-		cnt = 0
+		
+		cnt = 1
 		for i in range(len(v0)):
 			try:
+				f.write('f ')
 				f.write(f"{v0[i].split('/')[0]}//{cnt} {v0[i+1].split('/')[0]}//{cnt} {v1[i].split('/')[0]}//{cnt} {v1[i+1].split('/')[0]}//{cnt} \n")
 				cnt += 1
-				f.write('f ')
 			except IndexError:
 				print('Empty')
 
