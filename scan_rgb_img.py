@@ -142,7 +142,7 @@ if __name__ == '__main__':
 		
 		# TODO: make a function  of STL file creation here !!
 		X_s, Y_s = curve[:,1], curve[:,0]
-		open('test.obj', 'w').write('o Name\n')
+		open('test.obj', 'w').write("# Blender v2.79 (sub 0) OBJ File: ''\n# www.blender.org\nmtllib untitled.mtl\no Name\n")
 		f = open('test.obj', 'a')
 		f.write('\n'.join(['v %s %s %s' % (t[0], t[1], t[2]) for t in zip(X_s, Y_s, len(X_s)*[0])])+'\n')
 		f.write('\n'.join(['v %s %s %s' % (t[0], t[1], t[2]) for t in zip(X_s, Y_s, len(X_s)*[1])])+'\n')
@@ -152,7 +152,7 @@ if __name__ == '__main__':
 		f.write('f ')
 		v1 = ['%s//2' % str(y+len(Y_s)) for y in range(len(Y_s))]
 		f.write(' '.join(v1)+'\n')
-		
+		f.write('usemtl None\ns off')
 		cnt = 1
 		for i in range(len(v0)):
 			try:
