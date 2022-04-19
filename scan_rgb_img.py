@@ -146,18 +146,22 @@ if __name__ == '__main__':
 		f = open('test.obj', 'a')
 		f.write('\n'.join(['v %s %s %s' % (t[0], t[1], t[2]) for t in zip(X_s, Y_s, len(X_s)*[0])])+'\n')
 		f.write('\n'.join(['v %s %s %s' % (t[0], t[1], t[2]) for t in zip(X_s, Y_s, len(X_s)*[1])])+'\n')
+		f.write('vn 0.0000 0.0000 0.0000')
+		for x in range(len(X_s)):
+			f.write('\nvn 0.0000 0.0000 0.0000')
+
+		f.write('\nusemtl None\ns off\n')
 		f.write('f ')
-		v0 = ['%s//1' % x for x in range(len(X_s))]
+		v0 = ['%s//1' % str(x+1) for x in range(len(X_s))]
 		f.write(' '.join(v0)+'\n')
 		f.write('f ')
-		v1 = ['%s//2' % str(y+len(Y_s)) for y in range(len(Y_s))]
+		v1 = ['%s//2' % str(y+1+len(Y_s)) for y in range(len(Y_s))]
 		f.write(' '.join(v1)+'\n')
-		f.write('usemtl None\ns off')
-		cnt = 1
-		for i in range(len(v0)):
+		cnt = 3
+		for i in range(len(v0)-1):
 			try:
 				f.write('f ')
-				f.write(f"{v0[i].split('/')[0]}//{cnt} {v0[i+1].split('/')[0]}//{cnt} {v1[i].split('/')[0]}//{cnt} {v1[i+1].split('/')[0]}//{cnt} \n")
+				f.write(f"{int(v0[i].split('/')[0])}//{cnt} {v0[i+1].split('/')[0]}//{cnt} {int(v1[i+1].split('/')[0])}//{cnt} {v1[i].split('/')[0]}//{cnt} \n")
 				cnt += 1
 			except IndexError:
 				print('Empty')
